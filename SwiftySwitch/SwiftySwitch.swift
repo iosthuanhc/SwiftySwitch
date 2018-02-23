@@ -12,6 +12,8 @@ import UIKit
 public class SwiftySwitch: UIView {
 
     private var ball: SwitchBall!
+    private var titleLabel: UILabel!
+    internal var titleFont: UIFont = UIFont.boldSystemFont(ofSize: 15)
     internal var delegate: SwiftySwitchDelegate?
     private var shouldSkip: Bool = false
     
@@ -50,6 +52,16 @@ public class SwiftySwitch: UIView {
         }
     }
     @IBInspectable public var myColor: UIColor = UIColor(red: 35/255, green: 110/255, blue: 129/255, alpha: 1/1) {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var myOnColor: UIColor = UIColor(red: 35/255, green: 110/255, blue: 129/255, alpha: 1/1) {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var myOffColor: UIColor = UIColor(red: 35/255, green: 110/255, blue: 129/255, alpha: 1/1) {
         didSet {
             config()
         }
@@ -98,7 +110,36 @@ public class SwiftySwitch: UIView {
             config()
         }
     }
-    
+    @IBInspectable public var titleOn: String = "" {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var titleOff: String = "" {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var titleOffColor: UIColor = UIColor(red: 0/255, green: 66/255, blue: 99/255, alpha: 1/1) {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var titleOnColor: UIColor = UIColor(red: 0/255, green: 199/255, blue: 170/255, alpha: 1/1) {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var myBorderColor: UIColor = UIColor(red: 35/255, green: 110/255, blue: 129/255, alpha: 1/1) {
+        didSet {
+            config()
+        }
+    }
+    @IBInspectable public var borderWith: CGFloat = 0 {
+        didSet {
+            config()
+        }
+    }
     private var isMoving: Bool = false
     private var tapRecognizer: UITapGestureRecognizer!
     
@@ -126,9 +167,28 @@ public class SwiftySwitch: UIView {
         }
         self.backgroundColor = myColor
         self.layer.cornerRadius = myFrame.height * corners0to1
+        self.layer.borderWidth = borderWith
+        self.layer.borderColor = myBorderColor.cgColor
         var oldBall = ball
+        var oldTitle = titleLabel
         ball = SwitchBall(dotOnColor, dotOffColor, smallDotColor, isOn, myFrame, dotSpacer, smallDot0to1, dotTime)
         self.addSubview(ball)
+        if isOn {
+            self.backgroundColor = myOnColor
+            titleLabel = UILabel(frame: CGRect(x: 0, y: 0, width: mySize.width - ball.frame.size.width, height: mySize.height))
+            titleLabel.text = titleOn
+            titleLabel.textColor = titleOnColor
+        } else {
+            self.backgroundColor = myOffColor
+            titleLabel = UILabel(frame: CGRect(x: ball.frame.size.width, y: 0, width: mySize.width - ball.frame.size.width, height: mySize.height))
+            titleLabel.text = titleOff
+            titleLabel.textColor = titleOffColor
+        }
+        titleLabel.font = titleFont
+        titleLabel.textAlignment = .center
+        self.addSubview(titleLabel)
+        oldTitle?.removeFromSuperview()
+        oldTitle = nil
         oldBall?.removeFromSuperview()
         oldBall = nil
         tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.onTap(_:)))
@@ -139,7 +199,7 @@ public class SwiftySwitch: UIView {
         self.isUserInteractionEnabled = true
     }
     
-    func onTap(_ recognizer: UITapGestureRecognizer) {
+    @objc func onTap(_ recognizer: UITapGestureRecognizer) {
         if !isMoving {
             if !isOn {
                 isOn = true
